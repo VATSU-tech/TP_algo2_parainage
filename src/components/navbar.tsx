@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <header className="w-full">
       <nav>
-        <ul className="flex text-center justify-between bg-gray-400 border-gray-500 px-4 py-2 rounded-2xl">
+        <ul className="flex text-center justify-between bg-gray-200 border-gray-500 px-4 items-center py-2 rounded-2xl">
           <li>
             <ul className="flex gap-4 cursor-pointer">
               <li>
