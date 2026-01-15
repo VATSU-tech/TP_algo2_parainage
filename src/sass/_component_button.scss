@@ -1,4 +1,4 @@
-$btn-color: rgb(255, 255, 255);
+$color: rgb(255, 255, 255);
 .btn-1 {
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -13,9 +13,9 @@ $btn-color: rgb(255, 255, 255);
 
   &:hover {
     letter-spacing: 0.25em;
-    background: $btn-color;
-    color: $btn-color;
-    box-shadow: 0 0 45px $btn-color;
+    background: $color;
+    color: $color;
+    box-shadow: 0 0 45px $color;
   }
 
   &::before {
@@ -38,12 +38,12 @@ $btn-color: rgb(255, 255, 255);
     &::before {
       content: "";
       position: absolute;
-      border: 2px solid $btn-color;
+      border: 2px solid $color;
       width: 20px;
       height: 10px;
       top: -3.5px;
       left: 80%;
-      background: $btn-color;
+      background: $color;
       transform: translateX(-50%);
       transition: 0.5s;
     }
@@ -51,12 +51,12 @@ $btn-color: rgb(255, 255, 255);
     &::after {
       content: "";
       position: absolute;
-      border: 2px solid $btn-color;
+      border: 2px solid $color;
       width: 20px;
       height: 10px;
       bottom: -3.5px;
       left: 20%;
-      background: $btn-color;
+      background: $color;
       transform: translateX(-50%);
       transition: 0.5s;
     }

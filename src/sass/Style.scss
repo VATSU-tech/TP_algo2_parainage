@@ -1,2 +1,6 @@
 @import "./_settings.scss";
 @import "./_component_button.scss";
+
+.nav-active{
+    border-bottom: 1px solid $color;
+}
