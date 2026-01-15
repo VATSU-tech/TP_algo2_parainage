@@ -3,7 +3,7 @@ import Avatar from "./Avatar";
 
 export default function Navbar() {
   return (
-    <header className="w-full">
+    <header className="w-full mb-3.5">
       <nav>
         <ul className="flex text-center justify-between bg-gray-200 border-gray-500 px-4 items-center py-2 rounded-2xl">
           <li>
@@ -11,57 +11,92 @@ export default function Navbar() {
               <li>
                 <NavLink
                   to="/"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Acceuil
+                  <button className="button" >
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Acceuil</div>
+                  </button>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/statistique"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Reseau
+                  <button className="button">
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Reseau</div>
+                  </button>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/gains"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Gains
+                  <button className="button">
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Gains</div>
+                  </button>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/produits"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Produits
+                  <button className="button">
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Produits</div>
+                  </button>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/outils"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Outils
+                  <button className="button">
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Outils</div>
+                  </button>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/formation"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Formation
+                  <button className="button">
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Formation</div>
+                  </button>
                 </NavLink>
               </li>
               <li>
                 <NavLink
                   to="/support"
-                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                  className={(nav) => (nav.isActive ? "button active" : "button")}
                 >
-                  Support
+                  <button className="button">
+                    <svg>
+                      <rect className="border" pathLength="100"></rect> 
+                    </svg>
+                    <div className="txt-upload">Support</div>
+                  </button>
                 </NavLink>
               </li>
             </ul>

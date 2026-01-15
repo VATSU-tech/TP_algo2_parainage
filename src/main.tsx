@@ -6,6 +6,7 @@ import App from './App.tsx'
 import Login from './pages/login.tsx'
 import Inscription from './pages/Inscription.tsx'
 import NotFound from './pages/NotFound.tsx'
+import Profil from './pages/Profil.tsx'
 
 const router = createBrowserRouter([
     {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
     {
         path: '/inscription',
         element: <Inscription />,
+    },
+    {
+        path: '/profil',
+        element: <Profil />,
     },
     {
       path:"*",

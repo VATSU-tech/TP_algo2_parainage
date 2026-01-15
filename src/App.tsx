@@ -4,7 +4,7 @@ import UserCard from "./components/UserCard";
 
 export default function App() {
     return (
-        <div className="flex flex-col gap-2.5 ">
+        <div>
             <Navbar />
             <UserCard />
         </div>
