@@ -9,25 +9,60 @@ export default function Navbar() {
           <li>
             <ul className="flex gap-4 cursor-pointer">
               <li>
-                <NavLink to='/' className={(nav)=> nav.isActive?"nav-active":"" }>Acceuil</NavLink>
+                <NavLink
+                  to="/"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Acceuil
+                </NavLink>
               </li>
               <li>
-                <NavLink to="/statistique" className={(nav)=> nav.isActive ? "nav-active":""}>Reseau</NavLink>
+                <NavLink
+                  to="/statistique"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Reseau
+                </NavLink>
               </li>
               <li>
-                <NavLink to="/gains" className={(nav)=> nav.isActive ? "nav-active":""}>Gains</NavLink>
+                <NavLink
+                  to="/gains"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Gains
+                </NavLink>
               </li>
               <li>
-                <NavLink to="/produits" className={(nav)=> nav.isActive ? "nav-active":""}>Produits</NavLink>
+                <NavLink
+                  to="/produits"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Produits
+                </NavLink>
               </li>
               <li>
-                <NavLink to="/outils" className={(nav)=> nav.isActive ? "nav-active":""}>Outils</NavLink>
+                <NavLink
+                  to="/outils"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Outils
+                </NavLink>
               </li>
               <li>
-                <NavLink to="/formation" className={(nav)=> nav.isActive ? "nav-active":""}>Formation</NavLink>
+                <NavLink
+                  to="/formation"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Formation
+                </NavLink>
               </li>
               <li>
-                <NavLink to="/support" className={(nav)=> nav.isActive ? "nav-active":""}>Support</NavLink>
+                <NavLink
+                  to="/support"
+                  className={(nav) => (nav.isActive ? "nav-active" : "")}
+                >
+                  Support
+                </NavLink>
               </li>
             </ul>
           </li>
