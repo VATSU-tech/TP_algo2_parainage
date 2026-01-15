@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import Login from './pages/login.tsx'
 import Inscription from './pages/Inscription.tsx'
+import NotFound from './pages/NotFound.tsx'
 
 const router = createBrowserRouter([
     {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
         path: '/inscription',
         element: <Inscription />,
     },
+    {
+      path:"*",
+      element: <NotFound />
+    }
 ])
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
