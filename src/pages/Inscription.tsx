@@ -12,7 +12,7 @@ export default function Inscription() {
             <Input placeholder="Nom d'utilisateur" type="text" icon="user"/>
             <Input placeholder="Mot de passe" type="password" icon="lock"/>
             <Input placeholder="Confirmer le mot de passe" type="password" icon="lock"/>
-            <Button1 text="S'inscrire" />
+            <Button1 text="S'inscrire" page="/" />
             <div className="flex gap-4 justify-between">
                 <p>Vous avez un compte <a href="/login" className="text-center text-blue-500 hover:underline">se connecter</a> </p>
             </div>

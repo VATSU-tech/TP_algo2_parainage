@@ -1,5 +1,12 @@
-export default function Button1({ text }: { text: string }) {
+import { NavLink } from "react-router-dom"
+
+export default function Button1({ text, page}: { text: string,page:string }) {
     return (
-        <button className="btn-1"><span>{text}</span><i></i></button>
+        <button className="btn-1">
+            <NavLink to={page}>
+                <span>{text}</span>
+                <i></i>
+            </NavLink>
+        </button>
     );
 }
