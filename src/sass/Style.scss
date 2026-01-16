@@ -4,6 +4,10 @@
 .active {
   stroke: $color;
 }
+.active svg {
+  background-color: rgb(224, 225, 231);
+  border-radius: 1.1em;
+}
 .button {
   position: relative;
   width: 5rem;
