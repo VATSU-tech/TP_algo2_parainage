@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <div className="drawer mb-3.5">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content flex flex-col">
+      <div className="drawer-content flex flex-col  bg-gray-100 border-gray-500">
         {/* Navbar */}
         <div className="navbarw-full">
           <div className="flex-none lg:hidden">
@@ -154,7 +154,7 @@ export default function Navbar() {
           aria-label="close sidebar"
           className="drawer-overlay"
         ></label>
-        <ul className="menu gap-4 justify-between bg-base-200 min-h-full w-80 p-4">
+        <ul className="menu gap-4  justify-between bg-base-200 min-h-full w-80 p-4">
           {/* Sidebar content here */}
           <li>
             <ul className="flex flex-col gap-4 cursor-pointer">
