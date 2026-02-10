@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { jsPDF } from "jspdf";
 import "./sass/Style.scss";
+import Graph3D from "./components/Graph3D";
 
 type Client = {
   id: number;
@@ -29,9 +31,33 @@ type DataState = {
   purchases: Purchase[];
 };
 
+type Role = "admin" | "analyst" | "viewer";
+
+type User = {
+  name: string;
+  email: string;
+  role: Role;
+  password: string;
+};
+
+type AuthUser = Omit<User, "password">;
+
 const STORAGE_KEY = "tp-parrainage-data-v1";
+const AUTH_KEY = "tp-parrainage-auth-v1";
 const DIRECT_RATE = 0.05;
 const INDIRECT_RATE = 0.01;
+
+const USERS: User[] = [
+  { name: "Admin", email: "admin@demo.fr", role: "admin", password: "admin123" },
+  { name: "Analyste", email: "analyste@demo.fr", role: "analyst", password: "analyst123" },
+  { name: "Visiteur", email: "visiteur@demo.fr", role: "viewer", password: "viewer123" },
+];
+
+const ROLE_LABELS: Record<Role, string> = {
+  admin: "Administrateur",
+  analyst: "Analyste",
+  viewer: "Visiteur",
+};
 
 const seedData: DataState = {
   clients: [
@@ -94,6 +120,51 @@ const buildAdjacency = (relations: Relation[]) => {
   return adjacency;
 };
 
+const wouldCreateCycle = (
+  parrainId: number,
+  filleulId: number,
+  adjacency: Map<number, number[]>
+) => {
+  if (parrainId === filleulId) return true;
+  const stack = [filleulId];
+  const visited = new Set<number>();
+  while (stack.length) {
+    const current = stack.pop();
+    if (current === undefined) continue;
+    if (current === parrainId) return true;
+    if (visited.has(current)) continue;
+    visited.add(current);
+    const children = adjacency.get(current) ?? [];
+    children.forEach((child) => {
+      if (!visited.has(child)) stack.push(child);
+    });
+  }
+  return false;
+};
+
+const hasCycle = (adjacency: Map<number, number[]>) => {
+  const visited = new Set<number>();
+  const inStack = new Set<number>();
+
+  const dfs = (node: number): boolean => {
+    if (inStack.has(node)) return true;
+    if (visited.has(node)) return false;
+    visited.add(node);
+    inStack.add(node);
+    const children = adjacency.get(node) ?? [];
+    for (const child of children) {
+      if (dfs(child)) return true;
+    }
+    inStack.delete(node);
+    return false;
+  };
+
+  for (const node of adjacency.keys()) {
+    if (dfs(node)) return true;
+  }
+  return false;
+};
+
 const getCommissionTotal = (
   parrainId: number,
   adjacency: Map<number, number[]>,
@@ -149,15 +220,37 @@ export default function App() {
     return seedData;
   });
 
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
+    try {
+      const raw = localStorage.getItem(AUTH_KEY);
+      if (raw) return JSON.parse(raw) as AuthUser;
+    } catch (error) {
+      console.warn("Impossible de charger l'authentification locale", error);
+    }
+    return null;
+  });
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem(AUTH_KEY);
+    }
+  }, [currentUser]);
 
   const [selectedClientId, setSelectedClientId] = useState<number>(data.clients[0]?.id ?? 1);
   const [clientForm, setClientForm] = useState({ name: "", email: "", city: "", joinedAt: "" });
   const [relationForm, setRelationForm] = useState({ parrainId: data.clients[0]?.id ?? 1, filleulId: data.clients[1]?.id ?? 2 });
   const [purchaseForm, setPurchaseForm] = useState({ clientId: data.clients[0]?.id ?? 1, amount: "", date: "" });
   const [formMessage, setFormMessage] = useState<string>("");
+  const [authMessage, setAuthMessage] = useState<string>("");
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+
+  const isAdmin = currentUser?.role === "admin";
 
   const totalsByClient = useMemo(() => {
     const totals = new Map<number, number>();
@@ -233,9 +326,106 @@ export default function App() {
     [totalsByClient]
   );
 
+  const cycleDetected = useMemo(() => hasCycle(adjacency), [adjacency]);
+
+  const selectedClient = data.clients.find((client) => client.id === selectedClientId);
+
+  const handleLogin = (event: FormEvent) => {
+    event.preventDefault();
+    setAuthMessage("");
+    const email = loginForm.email.trim().toLowerCase();
+    const password = loginForm.password;
+    const user = USERS.find((item) => item.email === email && item.password === password);
+    if (!user) {
+      setAuthMessage("Identifiants invalides. Réessaie avec un compte de démo.");
+      return;
+    }
+    const { password: _password, ...authUser } = user;
+    setCurrentUser(authUser);
+    setLoginForm({ email: "", password: "" });
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+  };
+
+  const handleExportPdf = () => {
+    const doc = new jsPDF();
+    let y = 14;
+
+    doc.setFontSize(16);
+    doc.text("Rapport - Parrainage & Commissions", 14, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.text(`Date: ${new Date().toLocaleDateString("fr-FR")}`, 14, y);
+    y += 6;
+    doc.text(
+      `Clients: ${data.clients.length} | Relations: ${data.relations.length} | Achats: ${data.purchases.length}`,
+      14,
+      y
+    );
+    y += 6;
+    doc.text(`Commission directe: ${DIRECT_RATE * 100}% | indirecte: ${INDIRECT_RATE * 100}%`, 14, y);
+    y += 8;
+
+    doc.setFontSize(13);
+    doc.text("Synthèse", 14, y);
+    y += 6;
+    doc.setFontSize(11);
+    doc.text(`Ventes réseau: ${formatMoney(totalNetworkSales)}`, 14, y);
+    y += 6;
+    doc.text(`Cycle détecté: ${cycleDetected ? "Oui" : "Non"}`, 14, y);
+    y += 8;
+
+    doc.setFontSize(13);
+    doc.text("Top 5 clients rentables", 14, y);
+    y += 6;
+    doc.setFontSize(11);
+    topClients.forEach(({ client, total }, index) => {
+      doc.text(`${index + 1}. ${client.name} - ${formatMoney(total)}`, 14, y);
+      y += 5;
+    });
+    y += 4;
+
+    doc.setFontSize(13);
+    doc.text("Détail parrain sélectionné", 14, y);
+    y += 6;
+    doc.setFontSize(11);
+    doc.text(`Parrain: ${selectedClient?.name ?? "-"}`, 14, y);
+    y += 5;
+    doc.text(`Direct: ${formatMoney(selectedCommission.directTotal)}`, 14, y);
+    y += 5;
+    doc.text(`Indirect: ${formatMoney(selectedCommission.indirectTotal)}`, 14, y);
+    y += 5;
+    doc.text(`Total: ${formatMoney(selectedCommission.total)}`, 14, y);
+    y += 8;
+
+    doc.setFontSize(13);
+    doc.text("Représentation textuelle du graphe", 14, y);
+    y += 6;
+    doc.setFontSize(9);
+    const lines = doc.splitTextToSize(adjacencyList, 180);
+    lines.forEach((line: string) => {
+      if (y > 280) {
+        doc.addPage();
+        y = 14;
+      }
+      doc.text(line, 14, y);
+      y += 4;
+    });
+
+    doc.save(`rapport-parrainage-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   const handleClientSubmit = (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
+
+    if (!isAdmin) {
+      setFormMessage("Accès refusé: seuls les administrateurs peuvent ajouter des données.");
+      return;
+    }
 
     if (!clientForm.name.trim() || !clientForm.email.trim()) {
       setFormMessage("Nom et email sont obligatoires pour ajouter un client.");
@@ -263,6 +453,11 @@ export default function App() {
     event.preventDefault();
     setFormMessage("");
 
+    if (!isAdmin) {
+      setFormMessage("Accès refusé: seuls les administrateurs peuvent ajouter des données.");
+      return;
+    }
+
     if (relationForm.parrainId === relationForm.filleulId) {
       setFormMessage("Un client ne peut pas se parrainer lui-même.");
       return;
@@ -275,6 +470,11 @@ export default function App() {
 
     if (exists) {
       setFormMessage("Cette relation existe déjà.");
+      return;
+    }
+
+    if (wouldCreateCycle(relationForm.parrainId, relationForm.filleulId, adjacency)) {
+      setFormMessage("Cette relation créerait un cycle dans le graphe. Relation refusée.");
       return;
     }
 
@@ -293,6 +493,11 @@ export default function App() {
   const handlePurchaseSubmit = (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
+
+    if (!isAdmin) {
+      setFormMessage("Accès refusé: seuls les administrateurs peuvent ajouter des données.");
+      return;
+    }
 
     const amount = Number(purchaseForm.amount);
     if (Number.isNaN(amount) || amount <= 0) {
@@ -314,7 +519,6 @@ export default function App() {
     setPurchaseForm({ clientId: purchaseForm.clientId, amount: "", date: "" });
   };
 
-  const selectedClient = data.clients.find((client) => client.id === selectedClientId);
   const directNames = selectedCommission.direct
     .map((id) => data.clients.find((client) => client.id === id)?.name ?? `#${id}`)
     .sort();
@@ -337,8 +541,75 @@ export default function App() {
           <div className="chip">Commission directe {DIRECT_RATE * 100}%</div>
           <div className="chip chip--ghost">Commission indirecte {INDIRECT_RATE * 100}%</div>
           <div className="chip chip--dark">Date limite: 10/03/2026</div>
+          <button type="button" className="button button--primary" onClick={handleExportPdf}>
+            Exporter PDF
+          </button>
         </div>
       </header>
+
+      <section className="grid grid--auth">
+        <div className="panel">
+          <h3>Authentification</h3>
+          {currentUser ? (
+            <div className="auth-card">
+              <div>
+                <p className="card__label">Connecté en tant que</p>
+                <p className="card__value">{currentUser.name}</p>
+                <p className="card__hint">{currentUser.email}</p>
+              </div>
+              <span className={`badge badge--${currentUser.role}`}>{ROLE_LABELS[currentUser.role]}</span>
+              <button type="button" className="button button--ghost" onClick={handleLogout}>
+                Se déconnecter
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleLogin} className="form">
+              <label>
+                Email
+                <input
+                  type="email"
+                  value={loginForm.email}
+                  onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })}
+                  placeholder="admin@demo.fr"
+                />
+              </label>
+              <label>
+                Mot de passe
+                <input
+                  type="password"
+                  value={loginForm.password}
+                  onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
+                  placeholder="admin123"
+                />
+              </label>
+              <button type="submit" className="button button--primary">
+                Se connecter
+              </button>
+            </form>
+          )}
+          {authMessage ? <p className="alert alert--mini">{authMessage}</p> : null}
+        </div>
+        <div className="panel">
+          <h3>Rôles et accès</h3>
+          <div className="role-list">
+            <p>
+              <strong>Administrateur:</strong> ajoute clients, relations, achats et exporte le PDF.
+            </p>
+            <p>
+              <strong>Analyste:</strong> consulte les commissions, le graphe et les statistiques.
+            </p>
+            <p>
+              <strong>Visiteur:</strong> accès lecture seule.
+            </p>
+          </div>
+          <div className="demo-accounts">
+            <p className="card__label">Comptes de démo</p>
+            <p className="demo-line">admin@demo.fr / admin123</p>
+            <p className="demo-line">analyste@demo.fr / analyst123</p>
+            <p className="demo-line">visiteur@demo.fr / viewer123</p>
+          </div>
+        </div>
+      </section>
 
       <section className="grid grid--stats">
         <div className="card">
@@ -373,6 +644,7 @@ export default function App() {
                 value={clientForm.name}
                 onChange={(event) => setClientForm({ ...clientForm, name: event.target.value })}
                 placeholder="Ex: Amine Diallo"
+                disabled={!isAdmin}
               />
             </label>
             <label>
@@ -382,6 +654,7 @@ export default function App() {
                 value={clientForm.email}
                 onChange={(event) => setClientForm({ ...clientForm, email: event.target.value })}
                 placeholder="prenom@entreprise.fr"
+                disabled={!isAdmin}
               />
             </label>
             <label>
@@ -390,6 +663,7 @@ export default function App() {
                 value={clientForm.city}
                 onChange={(event) => setClientForm({ ...clientForm, city: event.target.value })}
                 placeholder="Ex: Paris"
+                disabled={!isAdmin}
               />
             </label>
             <label>
@@ -398,9 +672,10 @@ export default function App() {
                 type="date"
                 value={clientForm.joinedAt}
                 onChange={(event) => setClientForm({ ...clientForm, joinedAt: event.target.value })}
+                disabled={!isAdmin}
               />
             </label>
-            <button type="submit" className="button button--primary">
+            <button type="submit" className="button button--primary" disabled={!isAdmin}>
               Ajouter
             </button>
           </form>
@@ -416,6 +691,7 @@ export default function App() {
                 onChange={(event) =>
                   setRelationForm({ ...relationForm, parrainId: Number(event.target.value) })
                 }
+                disabled={!isAdmin}
               >
                 {data.clients.map((client) => (
                   <option key={client.id} value={client.id}>
@@ -431,6 +707,7 @@ export default function App() {
                 onChange={(event) =>
                   setRelationForm({ ...relationForm, filleulId: Number(event.target.value) })
                 }
+                disabled={!isAdmin}
               >
                 {data.clients.map((client) => (
                   <option key={client.id} value={client.id}>
@@ -439,7 +716,7 @@ export default function App() {
                 ))}
               </select>
             </label>
-            <button type="submit" className="button button--primary">
+            <button type="submit" className="button button--primary" disabled={!isAdmin}>
               Ajouter
             </button>
           </form>
@@ -455,6 +732,7 @@ export default function App() {
                 onChange={(event) =>
                   setPurchaseForm({ ...purchaseForm, clientId: Number(event.target.value) })
                 }
+                disabled={!isAdmin}
               >
                 {data.clients.map((client) => (
                   <option key={client.id} value={client.id}>
@@ -472,6 +750,7 @@ export default function App() {
                 value={purchaseForm.amount}
                 onChange={(event) => setPurchaseForm({ ...purchaseForm, amount: event.target.value })}
                 placeholder="Ex: 250"
+                disabled={!isAdmin}
               />
             </label>
             <label>
@@ -480,14 +759,21 @@ export default function App() {
                 type="date"
                 value={purchaseForm.date}
                 onChange={(event) => setPurchaseForm({ ...purchaseForm, date: event.target.value })}
+                disabled={!isAdmin}
               />
             </label>
-            <button type="submit" className="button button--primary">
+            <button type="submit" className="button button--primary" disabled={!isAdmin}>
               Ajouter
             </button>
           </form>
         </div>
       </section>
+
+      {!isAdmin ? (
+        <p className="notice notice--warn">
+          Mode lecture seule: connecte-toi en administrateur pour ajouter des données.
+        </p>
+      ) : null}
 
       {formMessage ? <p className="alert">{formMessage}</p> : null}
 
@@ -633,9 +919,35 @@ export default function App() {
           </p>
         </div>
 
+        <div className="panel panel--graph">
+          <div className="panel__header">
+            <h3>Graphe 3D interactif</h3>
+            <span className="tag">Rotation / zoom</span>
+          </div>
+          <Graph3D
+            clients={data.clients}
+            relations={data.relations}
+            selectedId={selectedClientId}
+            directIds={selectedCommission.direct}
+            indirectIds={selectedCommission.indirect}
+          />
+          <p className="legend">Fais glisser pour tourner, molette pour zoomer.</p>
+        </div>
+      </section>
+
+      <section className="grid grid--text">
         <div className="panel">
           <h3>Représentation textuelle</h3>
           <pre className="console">{adjacencyList}</pre>
+        </div>
+        <div className="panel">
+          <h3>Contrôle de cohérence</h3>
+          <p className={`notice ${cycleDetected ? "notice--danger" : "notice--ok"}`}>
+            {cycleDetected
+              ? "Attention: un cycle existe dans le graphe actuel."
+              : "Aucun cycle détecté. Le graphe est cohérent."}
+          </p>
+          <p className="muted">Les relations créant un cycle sont refusées à l'ajout.</p>
         </div>
       </section>
 

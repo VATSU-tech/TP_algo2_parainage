@@ -115,12 +115,20 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+.grid--auth {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
 .grid--analysis {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .grid--graph {
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.grid--text {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
 .grid--tables {
@@ -197,6 +205,13 @@ select {
   font-size: 0.95rem;
 }
 
+input:disabled,
+select:disabled,
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 input:focus,
 select:focus {
   outline: 2px solid #ffb59f;
@@ -218,6 +233,11 @@ select:focus {
   box-shadow: 0 12px 20px rgba(255, 107, 74, 0.25);
 }
 
+.button--ghost {
+  background: #f0e5da;
+  color: var(--ink);
+}
+
 .button--primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 24px rgba(255, 107, 74, 0.35);
@@ -229,6 +249,82 @@ select:focus {
   border-left: 4px solid var(--accent);
   border-radius: 12px;
   font-weight: 600;
+}
+
+.alert--mini {
+  margin-top: 12px;
+  font-size: 0.85rem;
+}
+
+.notice {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.notice--ok {
+  background: #e5f2ee;
+  color: var(--teal);
+}
+
+.notice--danger {
+  background: #ffe7e1;
+  color: var(--accent-strong);
+}
+
+.notice--warn {
+  background: #fef1d6;
+  color: #8a5a00;
+}
+
+.auth-card {
+  display: grid;
+  gap: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  width: fit-content;
+}
+
+.badge--admin {
+  background: #ffe7e1;
+  color: var(--accent-strong);
+}
+
+.badge--analyst {
+  background: #e5f2ee;
+  color: var(--teal);
+}
+
+.badge--viewer {
+  background: #eee9ff;
+  color: var(--violet);
+}
+
+.role-list p {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+.demo-accounts {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.demo-line {
+  margin: 4px 0;
+  font-family: "Fira Code", "Nunito Sans", monospace;
+  font-size: 0.85rem;
+  color: var(--ink);
 }
 
 .stats-grid {
@@ -322,6 +418,15 @@ select:focus {
   border-radius: 16px;
   border: 1px solid var(--border);
   margin-top: 12px;
+}
+
+.graph-3d {
+  width: 100%;
+  height: 340px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: #fff;
+  overflow: hidden;
 }
 
 .legend {

@@ -17,10 +17,13 @@ La date limite indiquée dans le PDF est le 10/03/2026.
 - Ajout de clients, relations, achats via formulaires
 - Calcul des commissions directes (5%) et indirectes (1%)
 - Sélection d’un parrain et affichage détaillé
-- Graphe pondéré (SVG) + représentation textuelle
+- Graphe pondéré (SVG), graphe 3D interactif et représentation textuelle
 - Tables Clients / Relations / Achats
 - Classement des clients les plus rentables
 - Persistance locale via `localStorage`
+- Export PDF du rapport synthétique
+- Gestion des rôles et authentification (admin / analyste / visiteur)
+- Détection des cycles dans le graphe
 
 ## Règles de gestion
 
@@ -50,7 +53,8 @@ La fonction clé est `getCommissionTotal(parrain)` dans `src/App.tsx`.
 - Cartes statistiques (clients, relations, achats, ventes réseau)
 - Trois formulaires d’ajout (client, relation, achat)
 - Bloc d’analyse des commissions pour un parrain choisi
-- Graphe pondéré (SVG) et console textuelle
+- Graphe pondéré (SVG), graphe 3D et console textuelle
+- Bloc d’authentification et rôles
 - Tables de données
 
 ## Données de démonstration
@@ -98,16 +102,15 @@ Dans `src/App.tsx`:
 
 - `src/App.tsx` : logique principale, formulaires, calculs, rendu
 - `src/sass/Style.scss` : styles globaux de l’UI
+- `src/components/Graph3D.tsx` : visualisation 3D du graphe
 - `src/main.tsx` : point d’entrée React + router
 
 ## Améliorations possibles
 
 - Remplacer la persistence `localStorage` par une vraie base (SQLite, Postgres, Supabase)
-- Détection de cycles dans le graphe pour éviter des incohérences
 - Ajout d’un historique d’achats par client
-- Export PDF du rapport demandé dans le TP
-- Visualisation avancée du graphe (D3, Cytoscape)
-- Gestion des rôles (admin/étudiant) et authentification
+- Export PDF enrichi avec graphiques intégrés
+- Visualisation avancée du graphe (D3, Cytoscape, layouts dynamiques)
 - Tests unitaires sur le calcul des commissions
 - Internationalisation (FR/EN)
 
