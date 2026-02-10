@@ -1,21 +1,11 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-type GraphClient = {
-  id: number;
-  name: string;
-};
-
-type GraphRelation = {
-  id: number;
-  parrainId: number;
-  filleulId: number;
-};
+import type { Client, Relation } from "../types/app";
 
 type Graph3DProps = {
-  clients: GraphClient[];
-  relations: GraphRelation[];
+  clients: Client[];
+  relations: Relation[];
   selectedId: number;
   directIds: number[];
   indirectIds: number[];
