@@ -1,10 +1,10 @@
-import type { Client, Purchase, Relation } from "../types/app";
-import { formatMoney } from "../utils/format";
+import type { Client, Purchase, Relation } from "../types/app"; // Types pour les tableaux.
+import { formatMoney } from "../utils/format"; // Formatage des montants.
 
 type TablesSectionProps = {
-  clients: Client[];
-  relations: Relation[];
-  purchases: Purchase[];
+  clients: Client[]; // Liste des clients.
+  relations: Relation[]; // Liste des relations.
+  purchases: Purchase[]; // Liste des achats.
 };
 
 export default function TablesSection({ clients, relations, purchases }: TablesSectionProps) {
@@ -22,6 +22,7 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
             </tr>
           </thead>
           <tbody>
+            {/* Une ligne par client */}
             {clients.map((client) => (
               <tr key={client.id}>
                 <td>{client.name}</td>
@@ -44,6 +45,7 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
             </tr>
           </thead>
           <tbody>
+            {/* On cherche les noms à partir des IDs pour un affichage lisible */}
             {relations.map((relation) => {
               const parrain = clients.find((client) => client.id === relation.parrainId);
               const filleul = clients.find((client) => client.id === relation.filleulId);
@@ -69,6 +71,7 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
             </tr>
           </thead>
           <tbody>
+            {/* Une ligne par achat avec montant formaté */}
             {purchases.map((purchase) => {
               const client = clients.find((item) => item.id === purchase.clientId);
               return (
@@ -85,3 +88,9 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
     </section>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- Affiche 3 tableaux: clients, relations, achats.
+- Les relations/achats traduisent les IDs en noms lisibles quand possible.
+*/

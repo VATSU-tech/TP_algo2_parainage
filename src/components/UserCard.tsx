@@ -2,14 +2,14 @@ export default function UserCard() {
   return (
     <div className="flex flex-wrap  w-full gap-4 bg-gray-100 p-4  border-gray-500 rounded-2xl" >
       <div className="hover-3d ">
-        {/* content */}
+        {/* Carte 3D décorative */}
         <figure className="max-w-100 min-w-50 rounded-2xl">
           <img
             src="https://img.daisyui.com/images/stock/creditcard.webp"
             alt="3D card"
           />
         </figure>
-        {/* 8 empty divs needed for the 3D effect */}
+        {/* 8 divs vides nécessaires pour l'effet 3D */}
         <div></div>
         <div></div>
         <div></div>
@@ -20,6 +20,7 @@ export default function UserCard() {
         <div></div>
       </div>
         <div className="flex flex-1 min-w-3xs flex-col p-6 justify-around bg-gray-200 rounded-2xl">
+            {/* Informations principales */}
             <h1 className="text-4xl font-bold">John Doe</h1> 
             <p className="text-xl"><i className="fa-solid fa-envelope"></i> johndoe@gmail.com</p>
             <p className="text-xl text-gray-500"><i className="fa-brands fa-whatsapp"></i> 1234 5678 9012</p>
@@ -27,6 +28,7 @@ export default function UserCard() {
             <p className="text-xl text-gray-500"><i className="fa-solid fa-flag"></i> U.S.A</p> 
         </div>
         <div className=" flex min-w-3xs flex-col p-6 justify-around flex-1 bg-gray-200 rounded-2xl">
+            {/* Statistiques synthétiques */}
             <p className="text-4xl font-bold"><i className="fa-solid fa-wallet "></i>32123 $</p>    
             <p><i className="fa-solid fa-clock"></i> Join since 2022</p>
             <p><i className="fa-solid fa-users-line"></i> Parent of <span className="font-bold">123</span> persons</p>
@@ -35,3 +37,9 @@ export default function UserCard() {
     </div>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- UserCard affiche une carte profil avec infos utilisateur + stats.
+- La première colonne est décorative (effet 3D), les deux autres sont informatives.
+*/

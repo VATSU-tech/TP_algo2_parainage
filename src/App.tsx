@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import type { FormEvent } from "react";
-import { jsPDF } from "jspdf";
-import "./sass/Style.scss";
+import { useEffect, useMemo, useState } from "react"; // Hooks pour gérer l'état, les effets et les calculs mémorisés.
+import type { FormEvent } from "react"; // Type d'événement pour typer les submit.
+import { jsPDF } from "jspdf"; // Librairie d'export PDF côté client.
+import "./sass/Style.scss"; // Styles globaux de l'application.
 
 import AnalysisSection from "./components/AnalysisSection";
 import AuthSection from "./components/AuthSection";
@@ -13,7 +13,7 @@ import StatsSection from "./components/StatsSection";
 import TablesSection from "./components/TablesSection";
 import TextSection from "./components/TextSection";
 
-import { AUTH_KEY, DIRECT_RATE, INDIRECT_RATE, ROLE_LABELS, STORAGE_KEY, USERS } from "./config/app";
+import { AUTH_KEY, DIRECT_RATE, INDIRECT_RATE, ROLE_LABELS, STORAGE_KEY, USERS } from "./config/app"; // Constantes de config.
 import { seedData } from "./data/seed";
 import type {
   AuthUser,
@@ -24,10 +24,11 @@ import type {
   PurchaseFormState,
   RelationFormState,
 } from "./types/app";
-import { formatMoney, getNextId } from "./utils/format";
-import { buildAdjacency, getCommissionTotal, hasCycle, wouldCreateCycle } from "./utils/graph";
+import { formatMoney, getNextId } from "./utils/format"; // Helpers de formatage et d'ID.
+import { buildAdjacency, getCommissionTotal, hasCycle, wouldCreateCycle } from "./utils/graph"; // Algorithmes graphe.
 
 export default function App() {
+  // Chargement initial: on tente de récupérer les données du localStorage, sinon on prend le seed.
   const [data, setData] = useState<DataState>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -38,6 +39,7 @@ export default function App() {
     return seedData;
   });
 
+  // Même logique pour l'utilisateur connecté (auth locale).
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
     try {
       const raw = localStorage.getItem(AUTH_KEY);
@@ -48,10 +50,12 @@ export default function App() {
     return null;
   });
 
+  // Persistance automatique des données métier dans le localStorage.
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   }, [data]);
 
+  // Persistance de l'utilisateur connecté (ou suppression si déconnexion).
   useEffect(() => {
     if (currentUser) {
       localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
@@ -60,6 +64,7 @@ export default function App() {
     }
   }, [currentUser]);
 
+  // États locaux pour la sélection et les formulaires.
   const [selectedClientId, setSelectedClientId] = useState<number>(data.clients[0]?.id ?? 1);
   const [clientForm, setClientForm] = useState<ClientFormState>({
     name: "",
@@ -76,12 +81,14 @@ export default function App() {
     amount: "",
     date: "",
   });
-  const [formMessage, setFormMessage] = useState<string>("");
-  const [authMessage, setAuthMessage] = useState<string>("");
-  const [loginForm, setLoginForm] = useState<LoginFormState>({ email: "", password: "" });
+  const [formMessage, setFormMessage] = useState<string>(""); // Messages d'erreur/succès pour les formulaires.
+  const [authMessage, setAuthMessage] = useState<string>(""); // Message d'erreur d'authentification.
+  const [loginForm, setLoginForm] = useState<LoginFormState>({ email: "", password: "" }); // Champs du login.
 
+  // Flag pratique: l'utilisateur est-il admin ?
   const isAdmin = currentUser?.role === "admin";
 
+  // Calcul: total d'achats par client (Map clientId -> somme).
   const totalsByClient = useMemo(() => {
     const totals = new Map<number, number>();
     data.purchases.forEach((purchase) => {
@@ -90,13 +97,16 @@ export default function App() {
     return totals;
   }, [data.purchases]);
 
+  // Construction de la liste d'adjacence à partir des relations parrain -> filleul.
   const adjacency = useMemo(() => buildAdjacency(data.relations), [data.relations]);
 
+  // Calcul des commissions pour le client sélectionné (direct + indirect).
   const selectedCommission = useMemo(
     () => getCommissionTotal(selectedClientId, adjacency, totalsByClient, DIRECT_RATE, INDIRECT_RATE),
     [selectedClientId, adjacency, totalsByClient]
   );
 
+  // Préparation des arêtes pondérées pour le graphe 2D.
   const graphEdges = useMemo(() => {
     return data.relations.map((relation) => ({
       ...relation,
@@ -104,6 +114,7 @@ export default function App() {
     }));
   }, [data.relations, totalsByClient]);
 
+  // Positionnement circulaire des nœuds pour l'affichage SVG.
   const graphPositions = useMemo(() => {
     const width = 640;
     const height = 360;
@@ -121,6 +132,7 @@ export default function App() {
     });
   }, [data.clients]);
 
+  // Top 5 clients les plus rentables (tri décroissant).
   const topClients = useMemo(() => {
     return data.clients
       .map((client) => {
@@ -134,6 +146,7 @@ export default function App() {
       .slice(0, 5);
   }, [data.clients, adjacency, totalsByClient]);
 
+  // Version texte du graphe (parrain -> liste des filleuls + commissions directes).
   const adjacencyList = useMemo(() => {
     return data.clients
       .map((client) => {
@@ -151,15 +164,19 @@ export default function App() {
       .join("\n");
   }, [data.clients, data.relations, totalsByClient]);
 
+  // Somme totale des achats du réseau.
   const totalNetworkSales = useMemo(
     () => Array.from(totalsByClient.values()).reduce((sum, value) => sum + value, 0),
     [totalsByClient]
   );
 
+  // Détection de cycle dans le graphe (cohérence du réseau).
   const cycleDetected = useMemo(() => hasCycle(adjacency), [adjacency]);
 
+  // Recherche du client actuellement sélectionné.
   const selectedClient = data.clients.find((client) => client.id === selectedClientId);
 
+  // Gestion de l'authentification (login).
   const handleLogin = (event: FormEvent) => {
     event.preventDefault();
     setAuthMessage("");
@@ -175,10 +192,12 @@ export default function App() {
     setLoginForm({ email: "", password: "" });
   };
 
+  // Déconnexion simple: on efface l'utilisateur.
   const handleLogout = () => {
     setCurrentUser(null);
   };
 
+  // Export d'un rapport PDF (résumé + top + détail + graphe textuel).
   const handleExportPdf = () => {
     const doc = new jsPDF();
     let y = 14;
@@ -248,6 +267,7 @@ export default function App() {
     doc.save(`rapport-parrainage-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  // Ajout d'un client via le formulaire.
   const handleClientSubmit = (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
@@ -262,6 +282,7 @@ export default function App() {
       return;
     }
 
+    // Construction de l'objet client (avec valeurs par défaut).
     const newClient: Client = {
       id: getNextId(data.clients),
       name: clientForm.name.trim(),
@@ -270,6 +291,7 @@ export default function App() {
       joinedAt: clientForm.joinedAt || new Date().toISOString().slice(0, 10),
     };
 
+    // Mise à jour immuable de l'état global.
     setData((prev) => ({
       ...prev,
       clients: [...prev.clients, newClient],
@@ -279,6 +301,7 @@ export default function App() {
     setSelectedClientId(newClient.id);
   };
 
+  // Ajout d'une relation parrain/filleul avec contrôle d'erreurs.
   const handleRelationSubmit = (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
@@ -293,6 +316,7 @@ export default function App() {
       return;
     }
 
+    // Vérifie si la relation existe déjà.
     const exists = data.relations.some(
       (relation) =>
         relation.parrainId === relationForm.parrainId && relation.filleulId === relationForm.filleulId
@@ -303,23 +327,27 @@ export default function App() {
       return;
     }
 
+    // Empêche la création d'un cycle dans le graphe.
     if (wouldCreateCycle(relationForm.parrainId, relationForm.filleulId, adjacency)) {
       setFormMessage("Cette relation créerait un cycle dans le graphe. Relation refusée.");
       return;
     }
 
+    // Création de la relation validée.
     const newRelation = {
       id: getNextId(data.relations),
       parrainId: relationForm.parrainId,
       filleulId: relationForm.filleulId,
     };
 
+    // Mise à jour immuable des relations.
     setData((prev) => ({
       ...prev,
       relations: [...prev.relations, newRelation],
     }));
   };
 
+  // Ajout d'un achat (montant + date).
   const handlePurchaseSubmit = (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
@@ -329,12 +357,14 @@ export default function App() {
       return;
     }
 
+    // Conversion string -> number et validation.
     const amount = Number(purchaseForm.amount);
     if (Number.isNaN(amount) || amount <= 0) {
       setFormMessage("Le montant doit être un nombre supérieur à 0.");
       return;
     }
 
+    // Construction de l'achat avec date par défaut.
     const newPurchase = {
       id: getNextId(data.purchases),
       clientId: purchaseForm.clientId,
@@ -342,6 +372,7 @@ export default function App() {
       date: purchaseForm.date || new Date().toISOString().slice(0, 10),
     };
 
+    // Mise à jour immuable de la liste d'achats.
     setData((prev) => ({
       ...prev,
       purchases: [...prev.purchases, newPurchase],
@@ -349,6 +380,7 @@ export default function App() {
     setPurchaseForm({ clientId: purchaseForm.clientId, amount: "", date: "" });
   };
 
+  // Liste des noms de filleuls directs/indirects (tri alphabétique).
   const directNames = selectedCommission.direct
     .map((id) => data.clients.find((client) => client.id === id)?.name ?? `#${id}`)
     .sort();
@@ -356,10 +388,12 @@ export default function App() {
     .map((id) => data.clients.find((client) => client.id === id)?.name ?? `#${id}`)
     .sort();
 
+  // Génère les comptes de démo "email / password".
   const demoAccounts = USERS.map((user) => `${user.email} / ${user.password}`);
 
   return (
     <div className="app">
+      {/* En-tête avec taux et export PDF */}
       <Hero
         directRate={DIRECT_RATE}
         indirectRate={INDIRECT_RATE}
@@ -367,6 +401,7 @@ export default function App() {
         onExport={handleExportPdf}
       />
 
+      {/* Bloc d'authentification + rôles */}
       <AuthSection
         currentUser={currentUser}
         roleLabels={ROLE_LABELS}
@@ -379,6 +414,7 @@ export default function App() {
         demoAccounts={demoAccounts}
       />
 
+      {/* Statistiques globales */}
       <StatsSection
         clientsCount={data.clients.length}
         relationsCount={data.relations.length}
@@ -386,6 +422,7 @@ export default function App() {
         totalNetworkSales={totalNetworkSales}
       />
 
+      {/* Formulaires d'ajout (clients/relations/achats) */}
       <FormsSection
         clients={data.clients}
         isAdmin={isAdmin}
@@ -407,6 +444,7 @@ export default function App() {
         onPurchaseDateChange={(value) => setPurchaseForm((prev) => ({ ...prev, date: value }))}
       />
 
+      {/* Analyse détaillée des commissions */}
       <AnalysisSection
         clients={data.clients}
         selectedClientId={selectedClientId}
@@ -418,6 +456,7 @@ export default function App() {
         onClientSelect={setSelectedClientId}
       />
 
+      {/* Visualisation 2D + 3D du graphe */}
       <GraphSection
         clients={data.clients}
         relations={data.relations}
@@ -428,11 +467,24 @@ export default function App() {
         indirectIds={selectedCommission.indirect}
       />
 
+      {/* Version texte du graphe + contrôle de cycle */}
       <TextSection adjacencyList={adjacencyList} cycleDetected={cycleDetected} />
 
+      {/* Tables détaillées */}
       <TablesSection clients={data.clients} relations={data.relations} purchases={data.purchases} />
 
+      {/* Pied de page */}
       <Footer />
     </div>
   );
 }
+
+/*
+Résumé pédagogique du fichier:
+- Ce composant App centralise l'état global (clients, relations, achats) + l'authentification.
+- Les données sont persistées dans le localStorage (useEffect) et initialisées via seedData.
+- Les calculs lourds sont mémorisés (useMemo): totaux par client, commissions, graphe, top 5, etc.
+- Les handlers de formulaires valident les entrées, bloquent les actions non admin, puis mettent à jour l'état.
+- L'UI est assemblée par sections (Hero, Auth, Stats, Forms, Analyse, Graph, Texte, Tables, Footer).
+En bref: App est le "chef d'orchestre" qui calcule les données et les distribue aux composants enfants.
+*/

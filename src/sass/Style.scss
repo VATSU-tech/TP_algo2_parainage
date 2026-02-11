@@ -1,3 +1,4 @@
+/* Variables globales de thème */
 :root {
   color-scheme: light;
   --ink: #1f1b16;
@@ -13,12 +14,14 @@
   --shadow: 0 18px 40px rgba(31, 27, 22, 0.12);
 }
 
+/* Reset box-sizing */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+/* Styles de base */
 body {
   margin: 0;
   min-height: 100vh;
@@ -27,10 +30,12 @@ body {
   color: var(--ink);
 }
 
+/* Le root occupe toute la hauteur */
 #root {
   min-height: 100vh;
 }
 
+/* Conteneur principal */
 .app {
   max-width: 1180px;
   margin: 0 auto;
@@ -40,6 +45,7 @@ body {
   gap: 28px;
 }
 
+/* En-tête principal (Hero) */
 .hero {
   display: flex;
   flex-wrap: wrap;
@@ -52,12 +58,14 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Titre principal */
 .hero h1 {
   margin: 8px 0 12px;
   font-size: clamp(1.8rem, 2.6vw, 3.2rem);
   letter-spacing: -0.02em;
 }
 
+/* Petit label au-dessus du titre */
 .hero__eyebrow {
   font-weight: 600;
   text-transform: uppercase;
@@ -66,6 +74,7 @@ body {
   color: var(--accent-strong);
 }
 
+/* Sous-titre */
 .hero__subtitle {
   margin: 0;
   max-width: 560px;
@@ -74,12 +83,14 @@ body {
   line-height: 1.5;
 }
 
+/* Colonne d'infos à droite */
 .hero__meta {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* Badges/tags de métadonnées */
 .chip {
   background: var(--accent);
   color: #fff;
@@ -92,49 +103,60 @@ body {
   gap: 8px;
 }
 
+/* Variante claire */
 .chip--ghost {
   background: #f6e7dd;
   color: var(--ink);
 }
 
+/* Variante sombre */
 .chip--dark {
   background: #2b2119;
   color: #fff;
 }
 
+/* Grille générique */
 .grid {
   display: grid;
   gap: 18px;
 }
 
+/* Grille stats */
 .grid--stats {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+/* Grille formulaires */
 .grid--forms {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
+/* Grille auth */
 .grid--auth {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+/* Grille analyse */
 .grid--analysis {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
+/* Grille graphe */
 .grid--graph {
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
 }
 
+/* Grille texte */
 .grid--text {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+/* Grille tables */
 .grid--tables {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+/* Cartes et panneaux */
 .card,
 .panel {
   background: var(--paper);
@@ -144,11 +166,13 @@ body {
   box-shadow: 0 10px 24px rgba(31, 27, 22, 0.08);
 }
 
+/* Valeur principale dans les cartes */
 .card h2 {
   margin: 6px 0 8px;
   font-size: 2rem;
 }
 
+/* Libellés */
 .card__label {
   font-weight: 600;
   font-size: 0.85rem;
@@ -157,17 +181,20 @@ body {
   letter-spacing: 0.08em;
 }
 
+/* Aides */
 .card__hint {
   margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
 }
 
+/* Titres dans les panneaux */
 .panel h3 {
   margin: 0 0 14px;
   font-size: 1.2rem;
 }
 
+/* En-tête de panneau (titre + badge) */
 .panel__header {
   display: flex;
   justify-content: space-between;
@@ -176,11 +203,13 @@ body {
   margin-bottom: 14px;
 }
 
+/* Layout des formulaires */
 .form {
   display: grid;
   gap: 12px;
 }
 
+/* Style des labels */
 label {
   display: grid;
   gap: 6px;
@@ -189,6 +218,7 @@ label {
   color: var(--muted);
 }
 
+/* Typographie héritée pour inputs/boutons */
 input,
 select,
 button,
@@ -196,6 +226,7 @@ textarea {
   font-family: inherit;
 }
 
+/* Style de base des inputs/selects */
 input,
 select {
   border-radius: 12px;
@@ -205,6 +236,7 @@ select {
   font-size: 0.95rem;
 }
 
+/* Etat disabled */
 input:disabled,
 select:disabled,
 button:disabled {
@@ -212,12 +244,14 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Focus visible */
 input:focus,
 select:focus {
   outline: 2px solid #ffb59f;
   border-color: #ffb59f;
 }
 
+/* Boutons génériques */
 .button {
   border: none;
   border-radius: 999px;
@@ -227,22 +261,26 @@ select:focus {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Variante principale */
 .button--primary {
   background: var(--accent);
   color: #fff;
   box-shadow: 0 12px 20px rgba(255, 107, 74, 0.25);
 }
 
+/* Variante secondaire */
 .button--ghost {
   background: #f0e5da;
   color: var(--ink);
 }
 
+/* Effet hover */
 .button--primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 24px rgba(255, 107, 74, 0.35);
 }
 
+/* Boîtes d'alerte */
 .alert {
   padding: 12px 18px;
   background: #fff2ea;
@@ -251,11 +289,13 @@ select:focus {
   font-weight: 600;
 }
 
+/* Variante compacte */
 .alert--mini {
   margin-top: 12px;
   font-size: 0.85rem;
 }
 
+/* Notices */
 .notice {
   padding: 12px 16px;
   border-radius: 12px;
@@ -263,26 +303,31 @@ select:focus {
   margin: 0 0 10px;
 }
 
+/* Notice OK */
 .notice--ok {
   background: #e5f2ee;
   color: var(--teal);
 }
 
+/* Notice danger */
 .notice--danger {
   background: #ffe7e1;
   color: var(--accent-strong);
 }
 
+/* Notice avertissement */
 .notice--warn {
   background: #fef1d6;
   color: #8a5a00;
 }
 
+/* Carte d'utilisateur connecté */
 .auth-card {
   display: grid;
   gap: 12px;
 }
 
+/* Badge de rôle */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -294,32 +339,38 @@ select:focus {
   width: fit-content;
 }
 
+/* Badge admin */
 .badge--admin {
   background: #ffe7e1;
   color: var(--accent-strong);
 }
 
+/* Badge analyst */
 .badge--analyst {
   background: #e5f2ee;
   color: var(--teal);
 }
 
+/* Badge viewer */
 .badge--viewer {
   background: #eee9ff;
   color: var(--violet);
 }
 
+/* Liste des rôles */
 .role-list p {
   margin: 0 0 8px;
   color: var(--muted);
 }
 
+/* Bloc comptes de démo */
 .demo-accounts {
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px dashed var(--border);
 }
 
+/* Ligne de compte */
 .demo-line {
   margin: 4px 0;
   font-family: "Fira Code", "Nunito Sans", monospace;
@@ -327,22 +378,26 @@ select:focus {
   color: var(--ink);
 }
 
+/* Grille interne des stats */
 .stats-grid {
   display: grid;
   gap: 14px;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+/* Valeur principale */
 .card__value {
   font-size: 1.4rem;
   font-weight: 700;
   margin: 6px 0 2px;
 }
 
+/* Mise en avant */
 .highlight {
   color: var(--accent-strong);
 }
 
+/* Grille des pills */
 .pill-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -350,17 +405,20 @@ select:focus {
   margin-top: 16px;
 }
 
+/* Titre des pills */
 .pill-label {
   font-weight: 700;
   margin-bottom: 8px;
 }
 
+/* Liste flexible de pills */
 .pill-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
+/* Pill de base */
 .pill {
   padding: 6px 12px;
   border-radius: 999px;
@@ -370,16 +428,19 @@ select:focus {
   font-weight: 600;
 }
 
+/* Pill variante ghost */
 .pill--ghost {
   background: #eee9ff;
   color: var(--violet);
 }
 
+/* Liste du classement */
 .rank-list {
   display: grid;
   gap: 10px;
 }
 
+/* Item de classement */
 .rank-item {
   display: grid;
   grid-template-columns: 32px 1fr auto;
@@ -391,6 +452,7 @@ select:focus {
   border: 1px solid var(--border);
 }
 
+/* Badge du rang */
 .rank-index {
   width: 32px;
   height: 32px;
@@ -402,15 +464,18 @@ select:focus {
   color: var(--accent-strong);
 }
 
+/* Valeur du classement */
 .rank-value {
   font-weight: 700;
 }
 
+/* Texte atténué */
 .muted {
   font-size: 0.85rem;
   color: var(--muted);
 }
 
+/* Encadrement du SVG */
 .panel--graph svg {
   width: 100%;
   height: auto;
@@ -420,6 +485,7 @@ select:focus {
   margin-top: 12px;
 }
 
+/* Conteneur du canvas 3D */
 .graph-3d {
   width: 100%;
   height: 340px;
@@ -429,12 +495,14 @@ select:focus {
   overflow: hidden;
 }
 
+/* Légende */
 .legend {
   margin-top: 12px;
   font-size: 0.85rem;
   color: var(--muted);
 }
 
+/* Tag */
 .tag {
   font-size: 0.8rem;
   font-weight: 600;
@@ -444,6 +512,7 @@ select:focus {
   border-radius: 999px;
 }
 
+/* Zone type terminal */
 .console {
   background: #1b1713;
   color: #f7eadf;
@@ -455,12 +524,14 @@ select:focus {
   white-space: pre-wrap;
 }
 
+/* Tableaux */
 table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
 
+/* Cellules de table */
 th,
 td {
   text-align: left;
@@ -468,6 +539,7 @@ td {
   border-bottom: 1px solid var(--border);
 }
 
+/* Entête de table */
 th {
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -475,12 +547,14 @@ th {
   color: var(--muted);
 }
 
+/* Pied de page */
 .footer {
   text-align: center;
   font-size: 0.9rem;
   color: var(--muted);
 }
 
+/* Code inline */
 .footer code {
   background: #fff2ea;
   color: var(--accent-strong);
@@ -488,12 +562,14 @@ th {
   border-radius: 6px;
 }
 
+/* Breakpoint moyen: empile les graphes */
 @media (max-width: 900px) {
   .grid--graph {
     grid-template-columns: 1fr;
   }
 }
 
+/* Breakpoint mobile: ajuste le hero */
 @media (max-width: 600px) {
   .hero {
     padding: 22px;
@@ -504,3 +580,8 @@ th {
     align-items: flex-start;
   }
 }
+
+/* Résumé pédagogique:
+   - Ce fichier regroupe tout le design UI: couleurs, layout, cartes, formulaires, graphes.
+   - Les classes sont utilisées par les composants React pour garder une cohérence visuelle.
+*/

@@ -1,5 +1,7 @@
+/* Couleur principale du bouton */
 $color: rgb(105, 105, 105);
 .btn-1 {
+  /* Styles de base du bouton */
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 10px 30px;
@@ -12,6 +14,7 @@ $color: rgb(105, 105, 105);
   color: #fff;
 
   &:hover {
+    /* Effet hover: lettre espacée + glow */
     letter-spacing: 0.25em;
     background: $color;
     color: $color;
@@ -19,6 +22,7 @@ $color: rgb(105, 105, 105);
   }
 
   &::before {
+    /* Couche interne pour l'effet de profondeur */
     content: "";
     position: absolute;
     inset: 2px;
@@ -26,16 +30,19 @@ $color: rgb(105, 105, 105);
   }
 
   & span {
+    /* Texte au-dessus de la couche interne */
     position: relative;
     z-index: 1;
   }
 
   & i {
+    /* Élément décoratif qui ajoute les barres haut/bas */
     position: absolute;
     inset: 0;
     display: block;
 
     &::before {
+      /* Barre décorative supérieure */
       content: "";
       position: absolute;
       border: 2px solid $color;
@@ -49,6 +56,7 @@ $color: rgb(105, 105, 105);
     }
 
     &::after {
+      /* Barre décorative inférieure */
       content: "";
       position: absolute;
       border: 2px solid $color;
@@ -63,12 +71,18 @@ $color: rgb(105, 105, 105);
   }
 
   &:hover i::before {
+    /* Déplacement de la barre supérieure au hover */
     width: 20px;
     left: 20%;
   }
 
   &:hover i::after {
+    /* Déplacement de la barre inférieure au hover */
     width: 20px;
     left: 80%;
   }
 }
+
+/* Résumé pédagogique:
+   - Styles d'un bouton animé avec effets de glow et barres décoratives.
+*/

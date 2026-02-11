@@ -1,25 +1,25 @@
-import type { FormEvent } from "react";
-import type { Client, ClientFormState, PurchaseFormState, RelationFormState } from "../types/app";
+import type { FormEvent } from "react"; // Type d'événement pour submit.
+import type { Client, ClientFormState, PurchaseFormState, RelationFormState } from "../types/app"; // Types des formulaires.
 
 type FormsSectionProps = {
-  clients: Client[];
-  isAdmin: boolean;
-  formMessage: string;
-  clientForm: ClientFormState;
-  relationForm: RelationFormState;
-  purchaseForm: PurchaseFormState;
-  onClientSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onRelationSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onPurchaseSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onClientNameChange: (value: string) => void;
-  onClientEmailChange: (value: string) => void;
-  onClientCityChange: (value: string) => void;
-  onClientJoinedAtChange: (value: string) => void;
-  onRelationParrainChange: (value: number) => void;
-  onRelationFilleulChange: (value: number) => void;
-  onPurchaseClientChange: (value: number) => void;
-  onPurchaseAmountChange: (value: string) => void;
-  onPurchaseDateChange: (value: string) => void;
+  clients: Client[]; // Liste pour alimenter les selects.
+  isAdmin: boolean; // Détermine si les champs sont actifs.
+  formMessage: string; // Message d'erreur/succès global.
+  clientForm: ClientFormState; // Valeurs du formulaire client.
+  relationForm: RelationFormState; // Valeurs du formulaire relation.
+  purchaseForm: PurchaseFormState; // Valeurs du formulaire achat.
+  onClientSubmit: (event: FormEvent<HTMLFormElement>) => void; // Handler submit client.
+  onRelationSubmit: (event: FormEvent<HTMLFormElement>) => void; // Handler submit relation.
+  onPurchaseSubmit: (event: FormEvent<HTMLFormElement>) => void; // Handler submit achat.
+  onClientNameChange: (value: string) => void; // Handler champ nom.
+  onClientEmailChange: (value: string) => void; // Handler champ email.
+  onClientCityChange: (value: string) => void; // Handler champ ville.
+  onClientJoinedAtChange: (value: string) => void; // Handler champ date.
+  onRelationParrainChange: (value: number) => void; // Handler select parrain.
+  onRelationFilleulChange: (value: number) => void; // Handler select filleul.
+  onPurchaseClientChange: (value: number) => void; // Handler select client.
+  onPurchaseAmountChange: (value: string) => void; // Handler champ montant.
+  onPurchaseDateChange: (value: string) => void; // Handler champ date.
 };
 
 export default function FormsSection({
@@ -50,6 +50,7 @@ export default function FormsSection({
           <form onSubmit={onClientSubmit} className="form">
             <label>
               Nom complet
+              {/* Remonte la valeur au parent */}
               <input
                 value={clientForm.name}
                 onChange={(event) => onClientNameChange(event.target.value)}
@@ -59,6 +60,7 @@ export default function FormsSection({
             </label>
             <label>
               Email
+              {/* Remonte la valeur au parent */}
               <input
                 type="email"
                 value={clientForm.email}
@@ -69,6 +71,7 @@ export default function FormsSection({
             </label>
             <label>
               Ville
+              {/* Remonte la valeur au parent */}
               <input
                 value={clientForm.city}
                 onChange={(event) => onClientCityChange(event.target.value)}
@@ -78,6 +81,7 @@ export default function FormsSection({
             </label>
             <label>
               Date d'inscription
+              {/* Remonte la valeur au parent */}
               <input
                 type="date"
                 value={clientForm.joinedAt}
@@ -96,11 +100,13 @@ export default function FormsSection({
           <form onSubmit={onRelationSubmit} className="form">
             <label>
               Parrain
+              {/* Conversion string -> number pour l'ID */}
               <select
                 value={relationForm.parrainId}
                 onChange={(event) => onRelationParrainChange(Number(event.target.value))}
                 disabled={!isAdmin}
               >
+                {/* Liste des clients pour le select */}
                 {clients.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -110,11 +116,13 @@ export default function FormsSection({
             </label>
             <label>
               Filleul
+              {/* Conversion string -> number pour l'ID */}
               <select
                 value={relationForm.filleulId}
                 onChange={(event) => onRelationFilleulChange(Number(event.target.value))}
                 disabled={!isAdmin}
               >
+                {/* Liste des clients pour le select */}
                 {clients.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -133,11 +141,13 @@ export default function FormsSection({
           <form onSubmit={onPurchaseSubmit} className="form">
             <label>
               Client
+              {/* Conversion string -> number pour l'ID */}
               <select
                 value={purchaseForm.clientId}
                 onChange={(event) => onPurchaseClientChange(Number(event.target.value))}
                 disabled={!isAdmin}
               >
+                {/* Liste des clients pour le select */}
                 {clients.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name}
@@ -147,6 +157,7 @@ export default function FormsSection({
             </label>
             <label>
               Montant ($)
+              {/* Remonte la valeur textuelle au parent */}
               <input
                 type="number"
                 min="1"
@@ -159,6 +170,7 @@ export default function FormsSection({
             </label>
             <label>
               Date
+              {/* Remonte la valeur au parent */}
               <input
                 type="date"
                 value={purchaseForm.date}
@@ -173,13 +185,23 @@ export default function FormsSection({
         </div>
       </div>
 
+      {/* Avertissement si l'utilisateur n'est pas admin */}
       {!isAdmin ? (
         <p className="notice notice--warn">
           Mode lecture seule: connecte-toi en administrateur pour ajouter des données.
         </p>
       ) : null}
 
+      {/* Message de validation/erreur */}
       {formMessage ? <p className="alert">{formMessage}</p> : null}
     </section>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- Contient 3 formulaires: client, relation, achat.
+- Tous les champs sont contrôlés (value + onChange) et délégués au parent.
+- Les selects convertissent leurs valeurs en number avant envoi.
+- Affiche des messages de statut et bloque les champs si non-admin.
+*/

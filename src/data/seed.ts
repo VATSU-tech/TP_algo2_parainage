@@ -1,6 +1,8 @@
-import type { DataState } from "../types/app";
+import type { DataState } from "../types/app"; // Type global des données.
 
+// Données initiales chargées si aucun localStorage n'existe.
 export const seedData: DataState = {
+  // Clients de démonstration.
   clients: [
     { id: 1, name: "Alice Martin", email: "alice@entreprise.fr", city: "Lyon", joinedAt: "2024-02-18" },
     { id: 2, name: "Bob Diallo", email: "bob@entreprise.fr", city: "Lille", joinedAt: "2024-03-02" },
@@ -14,6 +16,7 @@ export const seedData: DataState = {
     { id: 10, name: "Jules Mahé", email: "jules@entreprise.fr", city: "Grenoble", joinedAt: "2024-06-03" },
     { id: 11, name: "Karim Roche", email: "karim@entreprise.fr", city: "Montpellier", joinedAt: "2024-06-15" },
   ],
+  // Relations de parrainage (parrainId -> filleulId).
   relations: [
     { id: 1, parrainId: 1, filleulId: 2 },
     { id: 2, parrainId: 1, filleulId: 3 },
@@ -26,6 +29,7 @@ export const seedData: DataState = {
     { id: 9, parrainId: 6, filleulId: 10 },
     { id: 10, parrainId: 8, filleulId: 11 },
   ],
+  // Achats associés à des clients.
   purchases: [
     { id: 1, clientId: 2, amount: 200, date: "2025-01-12" },
     { id: 2, clientId: 2, amount: 130, date: "2025-02-04" },
@@ -45,3 +49,9 @@ export const seedData: DataState = {
     { id: 16, clientId: 11, amount: 160, date: "2025-02-19" },
   ],
 };
+
+/*
+Résumé pédagogique du fichier:
+- Fournit un jeu de données de départ (clients, relations, achats).
+- Utilisé pour initialiser l'app si le localStorage est vide.
+*/

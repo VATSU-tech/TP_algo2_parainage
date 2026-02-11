@@ -1,14 +1,16 @@
-import { NavLink } from "react-router-dom";
-import Avatar from "./Avatar";
+import { NavLink } from "react-router-dom"; // Navigation sans rechargement.
+import Avatar from "./Avatar"; // Avatar utilisateur.
 
 export default function Navbar() {
   return (
     <div className="drawer mb-3.5">
+      {/* Checkbox contrôlant l'ouverture du drawer sur mobile */}
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content flex flex-col  bg-gray-100 border-gray-500">
         {/* Navbar */}
         <div className="navbarw-full">
           <div className="flex-none lg:hidden">
+            {/* Bouton hamburger visible uniquement en mobile */}
             <label
               htmlFor="my-drawer-2"
               aria-label="open sidebar"
@@ -33,6 +35,7 @@ export default function Navbar() {
             <ul className="menu menu-horizontal w-full flex-1 flex text-center justify-between bg-gray-100 border-gray-500 px-4 items-center py-2 rounded-2xl">
               <div className="mx-2 px-2 text-2xl font-bold bg-gray-200 p-1.5 rounded-2xl">Invit get $</div>
               <li className="flex-1 ">
+                {/* Menu desktop: liste de liens */}
                 <ul className="flex gap-4 justify-center mb-2 w-full">
                   <li>
                     <NavLink
@@ -142,6 +145,7 @@ export default function Navbar() {
                 </ul>
               </li>
               <li>
+                {/* Avatar utilisateur */}
                 <Avatar />
               </li>
             </ul>
@@ -149,6 +153,7 @@ export default function Navbar() {
         </div>
       </div>
       <div className="drawer-side">
+        {/* Overlay pour fermer le drawer */}
         <label
           htmlFor="my-drawer-2"
           aria-label="close sidebar"
@@ -161,6 +166,7 @@ export default function Navbar() {
               <li>
               <div className="mx-2 px-2 text-2xl font-bold bg-gray-200 p-1.5 justify-center rounded-2xl">Invit get $</div>
               </li>
+              {/* Menu mobile: mêmes liens que desktop */}
               <li>
                 <NavLink
                   to="/"
@@ -269,6 +275,7 @@ export default function Navbar() {
             </ul>
           </li>
           <li>
+            {/* Avatar utilisateur */}
             <Avatar />
           </li>
         </ul>
@@ -276,3 +283,10 @@ export default function Navbar() {
     </div>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- Navbar utilise un layout "drawer" pour un menu responsive.
+- Desktop: menu horizontal + avatar. Mobile: menu latéral activé par checkbox.
+- Les NavLink changent de style selon la route active.
+*/

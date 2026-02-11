@@ -1,15 +1,15 @@
-import type { FormEvent } from "react";
-import type { AuthUser, LoginFormState, Role } from "../types/app";
+import type { FormEvent } from "react"; // Type d'événement pour onSubmit.
+import type { AuthUser, LoginFormState, Role } from "../types/app"; // Types d'auth.
 
 type AuthPanelProps = {
-  currentUser: AuthUser | null;
-  roleLabels: Record<Role, string>;
-  authMessage: string;
-  loginForm: LoginFormState;
-  onLoginSubmit: (event: FormEvent<HTMLFormElement>) => void;
-  onLogout: () => void;
-  onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
+  currentUser: AuthUser | null; // Utilisateur connecté ou null.
+  roleLabels: Record<Role, string>; // Labels lisibles des rôles.
+  authMessage: string; // Message d'erreur d'auth.
+  loginForm: LoginFormState; // Valeurs du formulaire.
+  onLoginSubmit: (event: FormEvent<HTMLFormElement>) => void; // Handler submit.
+  onLogout: () => void; // Handler logout.
+  onEmailChange: (value: string) => void; // Handler champ email.
+  onPasswordChange: (value: string) => void; // Handler champ password.
 };
 
 export default function AuthPanel({
@@ -25,6 +25,7 @@ export default function AuthPanel({
   return (
     <div className="panel">
       <h3>Authentification</h3>
+      {/* Affichage conditionnel: connecté -> carte, sinon formulaire */}
       {currentUser ? (
         <div className="auth-card">
           <div>
@@ -41,6 +42,7 @@ export default function AuthPanel({
         <form onSubmit={onLoginSubmit} className="form">
           <label>
             Email
+            {/* Remonte la saisie au parent */}
             <input
               type="email"
               value={loginForm.email}
@@ -50,6 +52,7 @@ export default function AuthPanel({
           </label>
           <label>
             Mot de passe
+            {/* Remonte la saisie au parent */}
             <input
               type="password"
               value={loginForm.password}
@@ -62,7 +65,15 @@ export default function AuthPanel({
           </button>
         </form>
       )}
+      {/* Message d'erreur si besoin */}
       {authMessage ? <p className="alert alert--mini">{authMessage}</p> : null}
     </div>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- AuthPanel affiche soit l'état connecté, soit le formulaire de login.
+- Il remonte les changements au parent via onEmailChange/onPasswordChange.
+- Les badges de rôle utilisent le mapping roleLabels.
+*/

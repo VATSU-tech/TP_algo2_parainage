@@ -1,12 +1,12 @@
-import type { Client, GraphEdge, GraphNodePosition } from "../types/app";
+import type { Client, GraphEdge, GraphNodePosition } from "../types/app"; // Types du graphe 2D.
 
 type NetworkGraphProps = {
-  clients: Client[];
-  edges: GraphEdge[];
-  positions: GraphNodePosition[];
-  selectedClientId: number;
-  directIds: number[];
-  indirectIds: number[];
+  clients: Client[]; // Liste des clients.
+  edges: GraphEdge[]; // Arêtes pondérées.
+  positions: GraphNodePosition[]; // Positions XY.
+  selectedClientId: number; // ID sélectionné.
+  directIds: number[]; // IDs directs.
+  indirectIds: number[]; // IDs indirects.
 };
 
 export default function NetworkGraph({
@@ -19,17 +19,20 @@ export default function NetworkGraph({
 }: NetworkGraphProps) {
   return (
     <svg viewBox="0 0 640 360" role="img">
+      {/* Définition d'un marqueur flèche pour les arêtes */}
       <defs>
         <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
           <path d="M0,0 L0,6 L6,3 z" fill="#ff6b4a" />
         </marker>
       </defs>
+      {/* Arêtes du graphe */}
       {edges.map((edge) => {
         const from = positions.find((node) => node.id === edge.parrainId);
         const to = positions.find((node) => node.id === edge.filleulId);
         if (!from || !to) return null;
         const midX = (from.x + to.x) / 2;
         const midY = (from.y + to.y) / 2;
+        // Mise en évidence si l'arête part du client sélectionné.
         const isHighlighted = edge.parrainId === selectedClientId;
         return (
           <g key={edge.id}>
@@ -49,11 +52,13 @@ export default function NetworkGraph({
           </g>
         );
       })}
+      {/* Nœuds du graphe */}
       {positions.map((node) => {
         const client = clients.find((item) => item.id === node.id);
         const isSelected = node.id === selectedClientId;
         const isDirect = directIds.includes(node.id);
         const isIndirect = indirectIds.includes(node.id);
+        // Couleur selon le statut (sélection, direct, indirect, neutre).
         const fill = isSelected ? "#ff6b4a" : isDirect ? "#2e7d6e" : isIndirect ? "#6a5acd" : "#f5efe6";
         const textFill = isSelected ? "#fff" : "#2b2119";
 
@@ -69,3 +74,10 @@ export default function NetworkGraph({
     </svg>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- Dessine un graphe 2D en SVG avec arêtes et nœuds.
+- Colore les nœuds selon sélection/direct/indirect.
+- Affiche le poids des arêtes au milieu de chaque lien.
+*/

@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useRef } from "react";
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import type { Client, Relation } from "../types/app";
+import { useEffect, useMemo, useRef } from "react"; // Hooks React.
+import * as THREE from "three"; // Moteur 3D.
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"; // Contrôles caméra.
+import type { Client, Relation } from "../types/app"; // Types des données.
 
 type Graph3DProps = {
-  clients: Client[];
-  relations: Relation[];
-  selectedId: number;
-  directIds: number[];
-  indirectIds: number[];
+  clients: Client[]; // Liste des clients (nœuds).
+  relations: Relation[]; // Relations (arêtes).
+  selectedId: number; // ID sélectionné.
+  directIds: number[]; // IDs directs.
+  indirectIds: number[]; // IDs indirects.
 };
 
 export default function Graph3D({
@@ -18,8 +18,10 @@ export default function Graph3D({
   directIds,
   indirectIds,
 }: Graph3DProps) {
+  // Référence DOM pour injecter le canvas WebGL.
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Positionnement 3D des nœuds (répartis sur plusieurs couches).
   const positions = useMemo(() => {
     const map = new Map<number, { x: number; y: number; z: number }>();
     const layers = 3;
@@ -40,26 +42,32 @@ export default function Graph3D({
     const container = containerRef.current;
     if (!container) return;
 
+    // Dimensions du container.
     const width = container.clientWidth;
     const height = container.clientHeight;
 
+    // Scène + caméra.
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("#ffffff");
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 8, 18);
 
+    // Renderer WebGL.
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(window.devicePixelRatio || 1);
 
+    // Nettoie l'ancien canvas puis ajoute le nouveau.
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
 
+    // Contrôles orbit (rotation/zoom).
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
 
+    // Lumières de base.
     const ambient = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambient);
 
@@ -67,8 +75,10 @@ export default function Graph3D({
     directional.position.set(6, 10, 8);
     scene.add(directional);
 
+    // Groupe pour contenir nœuds + arêtes.
     const group = new THREE.Group();
 
+    // Arêtes (lignes) entre parrain et filleul.
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0xc9c0b6 });
     relations.forEach((relation) => {
       const from = positions.get(relation.parrainId);
@@ -83,6 +93,7 @@ export default function Graph3D({
       group.add(line);
     });
 
+    // Nœuds (sphères) + couleur selon statut.
     const sphereGeometry = new THREE.SphereGeometry(0.6, 24, 24);
     clients.forEach((client) => {
       const pos = positions.get(client.id);
@@ -100,6 +111,7 @@ export default function Graph3D({
 
     scene.add(group);
 
+    // Boucle d'animation.
     let frameId = 0;
     const animate = () => {
       controls.update();
@@ -108,6 +120,7 @@ export default function Graph3D({
     };
     animate();
 
+    // Redimensionnement responsive.
     const handleResize = () => {
       const nextWidth = container.clientWidth;
       const nextHeight = container.clientHeight;
@@ -118,6 +131,7 @@ export default function Graph3D({
 
     window.addEventListener("resize", handleResize);
 
+    // Nettoyage complet lors du démontage.
     return () => {
       window.removeEventListener("resize", handleResize);
       window.cancelAnimationFrame(frameId);
@@ -132,3 +146,11 @@ export default function Graph3D({
 
   return <div className="graph-3d" ref={containerRef} />;
 }
+
+/*
+Résumé pédagogique du composant:
+- Graph3D utilise Three.js pour afficher un réseau de clients en 3D.
+- positions calcule une disposition en couches circulaires.
+- useEffect instancie scène, caméra, lumières, nœuds et arêtes, puis anime.
+- Un cleanup complet évite les fuites mémoire WebGL.
+*/

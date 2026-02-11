@@ -1,15 +1,15 @@
-import type { Client, GraphEdge, GraphNodePosition, Relation } from "../types/app";
-import Graph3D from "./Graph3D";
-import NetworkGraph from "./NetworkGraph";
+import type { Client, GraphEdge, GraphNodePosition, Relation } from "../types/app"; // Types du graphe.
+import Graph3D from "./Graph3D"; // Graphe 3D (Three.js).
+import NetworkGraph from "./NetworkGraph"; // Graphe 2D (SVG).
 
 type GraphSectionProps = {
-  clients: Client[];
-  relations: Relation[];
-  graphEdges: GraphEdge[];
-  graphPositions: GraphNodePosition[];
-  selectedClientId: number;
-  directIds: number[];
-  indirectIds: number[];
+  clients: Client[]; // Liste des clients.
+  relations: Relation[]; // Relations pour le graphe 3D.
+  graphEdges: GraphEdge[]; // Arêtes pondérées pour le graphe 2D.
+  graphPositions: GraphNodePosition[]; // Positions XY pour le graphe 2D.
+  selectedClientId: number; // Client sélectionné.
+  directIds: number[]; // IDs directs (mise en évidence).
+  indirectIds: number[]; // IDs indirects (mise en évidence).
 };
 
 export default function GraphSection({
@@ -28,6 +28,7 @@ export default function GraphSection({
           <h3>Graphe pondéré du réseau</h3>
           <span className="tag">Poids = achats du filleul × 5%</span>
         </div>
+        {/* Graphe 2D SVG */}
         <NetworkGraph
           clients={clients}
           edges={graphEdges}
@@ -46,6 +47,7 @@ export default function GraphSection({
           <h3>Graphe 3D interactif</h3>
           <span className="tag">Rotation / zoom</span>
         </div>
+        {/* Graphe 3D Three.js */}
         <Graph3D
           clients={clients}
           relations={relations}
@@ -58,3 +60,9 @@ export default function GraphSection({
     </section>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- GraphSection juxtapose deux vues: 2D (SVG) et 3D (Three.js).
+- Les données de sélection (direct/indirect) servent à colorer les nœuds.
+*/

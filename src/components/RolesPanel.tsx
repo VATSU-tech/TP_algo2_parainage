@@ -1,5 +1,5 @@
 type RolesPanelProps = {
-  demoAccounts: string[];
+  demoAccounts: string[]; // Liste des comptes de démo (format "email / password").
 };
 
 export default function RolesPanel({ demoAccounts }: RolesPanelProps) {
@@ -7,6 +7,7 @@ export default function RolesPanel({ demoAccounts }: RolesPanelProps) {
     <div className="panel">
       <h3>Rôles et accès</h3>
       <div className="role-list">
+        {/* Explication des permissions par rôle */}
         <p>
           <strong>Administrateur:</strong> ajoute clients, relations, achats et exporte le PDF.
         </p>
@@ -19,6 +20,7 @@ export default function RolesPanel({ demoAccounts }: RolesPanelProps) {
       </div>
       <div className="demo-accounts">
         <p className="card__label">Comptes de démo</p>
+        {/* Affichage de chaque compte démo */}
         {demoAccounts.map((line) => (
           <p key={line} className="demo-line">
             {line}
@@ -28,3 +30,9 @@ export default function RolesPanel({ demoAccounts }: RolesPanelProps) {
     </div>
   );
 }
+
+/*
+Résumé pédagogique du composant:
+- Affiche les rôles disponibles et leurs permissions.
+- Liste aussi les comptes de démonstration fournis par l'application.
+*/

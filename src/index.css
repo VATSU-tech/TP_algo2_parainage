@@ -1,2 +1,8 @@
+/* Import de Tailwind CSS (base + utilities). */
 @import "tailwindcss";
+/* Activation du plugin DaisyUI pour les composants pré-stylés. */
 @plugin "daisyui";
+
+/* Résumé pédagogique:
+   - Ce fichier charge Tailwind et DaisyUI pour fournir les classes utilitaires.
+*/
