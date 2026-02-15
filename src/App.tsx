@@ -397,7 +397,6 @@ export default function App() {
       <Hero
         directRate={DIRECT_RATE}
         indirectRate={INDIRECT_RATE}
-        deadlineLabel="10/03/2026"
         onExport={handleExportPdf}
       />
 

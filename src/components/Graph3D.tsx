@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react"; // Hooks React.
 import * as THREE from "three"; // Moteur 3D.
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"; // Contrôles caméra.
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"; // Contrôles caméra (sans extension .js).
 import type { Client, Relation } from "../types/app"; // Types des données.
 
 type Graph3DProps = {
