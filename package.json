@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "deploy":"bash src/config/deploy.sh",
     "preview": "vite preview"
   },
   "dependencies": {

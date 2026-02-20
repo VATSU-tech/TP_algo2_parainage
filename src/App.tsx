@@ -474,6 +474,7 @@ export default function App() {
 
       {/* Pied de page */}
       <Footer />
+      <img src="https://raw.githubusercontent.com/VATSU-tech/wasomi_site_web/refs/heads/main/src/assets/image_hero.jpeg?token=GHSAT0AAAAAADPTYXCLO5J7T27TTXCO67DO2MUV4MA" alt="photo" />
     </div>
   );
 }
