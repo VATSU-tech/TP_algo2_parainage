@@ -9,8 +9,8 @@ type TablesSectionProps = {
 
 export default function TablesSection({ clients, relations, purchases }: TablesSectionProps) {
   return (
-    <section className="grid grid--tables">
-      <div className="panel">
+    <section className=" grid--tables">
+      <div className="panel mb-6">
         <h3>Table Clients</h3>
         <table>
           <thead>
@@ -35,7 +35,8 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
         </table>
       </div>
 
-      <div className="panel">
+      <div className="flex flex-row gap-4">      
+      <div className="panel flex-1/2 ">
         <h3>Table Relations</h3>
         <table>
           <thead>
@@ -60,7 +61,7 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
         </table>
       </div>
 
-      <div className="panel">
+      <div className="panel flex-1/2">
         <h3>Table Achats</h3>
         <table>
           <thead>
@@ -84,7 +85,7 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
             })}
           </tbody>
         </table>
-      </div>
+      </div></div>
     </section>
   );
 }

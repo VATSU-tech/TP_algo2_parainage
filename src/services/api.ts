@@ -7,6 +7,30 @@ type ApiErrorResponse = {
   message?: string;
 };
 
+const toNumber = (value: unknown, fallback = 0) => {
+  const numeric = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const normalizeClient = (client: Client): Client => ({
+  ...client,
+  id: toNumber(client.id),
+});
+
+const normalizeRelation = (relation: Relation): Relation => ({
+  ...relation,
+  id: toNumber(relation.id),
+  parrainId: toNumber(relation.parrainId),
+  filleulId: toNumber(relation.filleulId),
+});
+
+const normalizePurchase = (purchase: Purchase): Purchase => ({
+  ...purchase,
+  id: toNumber(purchase.id),
+  clientId: toNumber(purchase.clientId),
+  amount: toNumber(purchase.amount),
+});
+
 const buildErrorMessage = async (response: Response) => {
   let message = `Erreur API (${response.status})`;
   try {
@@ -40,24 +64,35 @@ const apiFetch = async <T>(path: string, options?: RequestInit) => {
   return (await response.json()) as T;
 };
 
-export const fetchClients = () => apiFetch<Client[]>("/clients");
-export const fetchRelations = () => apiFetch<Relation[]>("/relations");
-export const fetchPurchases = () => apiFetch<Purchase[]>("/purchases");
+export const fetchClients = async () => (await apiFetch<Client[]>("/clients")).map(normalizeClient);
+export const fetchRelations = async () => (await apiFetch<Relation[]>("/relations")).map(normalizeRelation);
+export const fetchPurchases = async () => (await apiFetch<Purchase[]>("/purchases")).map(normalizePurchase);
 
-export const createClient = (payload: Omit<Client, "id">) =>
-  apiFetch<Client>("/clients", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+export const createClient = async (payload: Omit<Client, "id">) =>
+  normalizeClient(
+    await apiFetch<Client>("/clients", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  );
 
-export const createRelation = (payload: Omit<Relation, "id">) =>
-  apiFetch<Relation>("/relations", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+export const createRelation = async (payload: Omit<Relation, "id">) =>
+  normalizeRelation(
+    await apiFetch<Relation>("/relations", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  );
 
-export const createPurchase = (payload: Omit<Purchase, "id">) =>
-  apiFetch<Purchase>("/purchases", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+export const createPurchase = async (payload: Omit<Purchase, "id">) =>
+  normalizePurchase(
+    await apiFetch<Purchase>("/purchases", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+  );
+
+/*
+Note: MySQL peut renvoyer les DECIMAL sous forme de string.
+On normalise les champs numériques pour éviter les erreurs côté frontend.
+*/
