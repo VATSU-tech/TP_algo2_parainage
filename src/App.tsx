@@ -13,59 +13,34 @@ import StatsSection from "./components/StatsSection";
 import TablesSection from "./components/TablesSection";
 import TextSection from "./components/TextSection";
 
-import { AUTH_KEY, DIRECT_RATE, INDIRECT_RATE, ROLE_LABELS, STORAGE_KEY, USERS } from "./config/app"; // Constantes de config.
-import { seedData } from "./data/seed";
+import { DIRECT_RATE, INDIRECT_RATE, ROLE_LABELS, USERS } from "./config/app"; // Constantes de config.
+import { createClient, createPurchase, createRelation, fetchClients, fetchPurchases, fetchRelations } from "./services/api";
 import type {
   AuthUser,
-  Client,
   ClientFormState,
   DataState,
   LoginFormState,
   PurchaseFormState,
   RelationFormState,
 } from "./types/app";
-import { formatMoney, getNextId } from "./utils/format"; // Helpers de formatage et d'ID.
+import { formatMoney } from "./utils/format"; // Helpers de formatage.
 import { buildAdjacency, getCommissionTotal, hasCycle, wouldCreateCycle } from "./utils/graph"; // Algorithmes graphe.
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) return error.message;
+  return "Erreur inconnue côté API.";
+};
+
 export default function App() {
-  // Chargement initial: on tente de récupérer les données du localStorage, sinon on prend le seed.
-  const [data, setData] = useState<DataState>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw) as DataState;
-    } catch (error) {
-      console.warn("Impossible de charger la sauvegarde locale", error);
-    }
-    return seedData;
-  });
+  const [data, setData] = useState<DataState>({ clients: [], relations: [], purchases: [] });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string>("");
 
-  // Même logique pour l'utilisateur connecté (auth locale).
-  const [currentUser, setCurrentUser] = useState<AuthUser | null>(() => {
-    try {
-      const raw = localStorage.getItem(AUTH_KEY);
-      if (raw) return JSON.parse(raw) as AuthUser;
-    } catch (error) {
-      console.warn("Impossible de charger l'authentification locale", error);
-    }
-    return null;
-  });
-
-  // Persistance automatique des données métier dans le localStorage.
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
-
-  // Persistance de l'utilisateur connecté (ou suppression si déconnexion).
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem(AUTH_KEY);
-    }
-  }, [currentUser]);
+  // Auth locale (en mémoire).
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
 
   // États locaux pour la sélection et les formulaires.
-  const [selectedClientId, setSelectedClientId] = useState<number>(data.clients[0]?.id ?? 1);
+  const [selectedClientId, setSelectedClientId] = useState<number>(0);
   const [clientForm, setClientForm] = useState<ClientFormState>({
     name: "",
     email: "",
@@ -73,17 +48,63 @@ export default function App() {
     joinedAt: "",
   });
   const [relationForm, setRelationForm] = useState<RelationFormState>({
-    parrainId: data.clients[0]?.id ?? 1,
-    filleulId: data.clients[1]?.id ?? 2,
+    parrainId: 0,
+    filleulId: 0,
   });
   const [purchaseForm, setPurchaseForm] = useState<PurchaseFormState>({
-    clientId: data.clients[0]?.id ?? 1,
+    clientId: 0,
     amount: "",
     date: "",
   });
   const [formMessage, setFormMessage] = useState<string>(""); // Messages d'erreur/succès pour les formulaires.
   const [authMessage, setAuthMessage] = useState<string>(""); // Message d'erreur d'authentification.
   const [loginForm, setLoginForm] = useState<LoginFormState>({ email: "", password: "" }); // Champs du login.
+
+  // Chargement des données depuis l'API.
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      setLoadError("");
+      try {
+        const [clients, relations, purchases] = await Promise.all([
+          fetchClients(),
+          fetchRelations(),
+          fetchPurchases(),
+        ]);
+        setData({ clients, relations, purchases });
+      } catch (error) {
+        setLoadError(getErrorMessage(error));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadData();
+  }, []);
+
+  // Ajuste les sélections quand les clients changent.
+  useEffect(() => {
+    if (!data.clients.length) return;
+
+    setSelectedClientId((prev) => {
+      if (data.clients.some((client) => client.id === prev)) return prev;
+      return data.clients[0].id;
+    });
+
+    setRelationForm((prev) => ({
+      parrainId: data.clients.some((client) => client.id === prev.parrainId)
+        ? prev.parrainId
+        : data.clients[0].id,
+      filleulId: data.clients.some((client) => client.id === prev.filleulId)
+        ? prev.filleulId
+        : data.clients[1]?.id ?? data.clients[0].id,
+    }));
+
+    setPurchaseForm((prev) => ({
+      ...prev,
+      clientId: data.clients.some((client) => client.id === prev.clientId) ? prev.clientId : data.clients[0].id,
+    }));
+  }, [data.clients]);
 
   // Flag pratique: l'utilisateur est-il admin ?
   const isAdmin = currentUser?.role === "admin";
@@ -268,7 +289,7 @@ export default function App() {
   };
 
   // Ajout d'un client via le formulaire.
-  const handleClientSubmit = (event: FormEvent) => {
+  const handleClientSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
 
@@ -282,27 +303,30 @@ export default function App() {
       return;
     }
 
-    // Construction de l'objet client (avec valeurs par défaut).
-    const newClient: Client = {
-      id: getNextId(data.clients),
+    // Construction du payload (avec valeurs par défaut).
+    const payload = {
       name: clientForm.name.trim(),
       email: clientForm.email.trim(),
       city: clientForm.city.trim() || "Ville inconnue",
       joinedAt: clientForm.joinedAt || new Date().toISOString().slice(0, 10),
     };
 
-    // Mise à jour immuable de l'état global.
-    setData((prev) => ({
-      ...prev,
-      clients: [...prev.clients, newClient],
-    }));
+    try {
+      const created = await createClient(payload);
+      setData((prev) => ({
+        ...prev,
+        clients: [...prev.clients, created],
+      }));
 
-    setClientForm({ name: "", email: "", city: "", joinedAt: "" });
-    setSelectedClientId(newClient.id);
+      setClientForm({ name: "", email: "", city: "", joinedAt: "" });
+      setSelectedClientId(created.id);
+    } catch (error) {
+      setFormMessage(getErrorMessage(error));
+    }
   };
 
   // Ajout d'une relation parrain/filleul avec contrôle d'erreurs.
-  const handleRelationSubmit = (event: FormEvent) => {
+  const handleRelationSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
 
@@ -333,22 +357,24 @@ export default function App() {
       return;
     }
 
-    // Création de la relation validée.
-    const newRelation = {
-      id: getNextId(data.relations),
-      parrainId: relationForm.parrainId,
-      filleulId: relationForm.filleulId,
-    };
+    // Création de la relation validée via API.
+    try {
+      const created = await createRelation({
+        parrainId: relationForm.parrainId,
+        filleulId: relationForm.filleulId,
+      });
 
-    // Mise à jour immuable des relations.
-    setData((prev) => ({
-      ...prev,
-      relations: [...prev.relations, newRelation],
-    }));
+      setData((prev) => ({
+        ...prev,
+        relations: [...prev.relations, created],
+      }));
+    } catch (error) {
+      setFormMessage(getErrorMessage(error));
+    }
   };
 
   // Ajout d'un achat (montant + date).
-  const handlePurchaseSubmit = (event: FormEvent) => {
+  const handlePurchaseSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setFormMessage("");
 
@@ -365,19 +391,22 @@ export default function App() {
     }
 
     // Construction de l'achat avec date par défaut.
-    const newPurchase = {
-      id: getNextId(data.purchases),
+    const payload = {
       clientId: purchaseForm.clientId,
       amount,
       date: purchaseForm.date || new Date().toISOString().slice(0, 10),
     };
 
-    // Mise à jour immuable de la liste d'achats.
-    setData((prev) => ({
-      ...prev,
-      purchases: [...prev.purchases, newPurchase],
-    }));
-    setPurchaseForm({ clientId: purchaseForm.clientId, amount: "", date: "" });
+    try {
+      const created = await createPurchase(payload);
+      setData((prev) => ({
+        ...prev,
+        purchases: [...prev.purchases, created],
+      }));
+      setPurchaseForm({ clientId: purchaseForm.clientId, amount: "", date: "" });
+    } catch (error) {
+      setFormMessage(getErrorMessage(error));
+    }
   };
 
   // Liste des noms de filleuls directs/indirects (tri alphabétique).
@@ -390,6 +419,22 @@ export default function App() {
 
   // Génère les comptes de démo "email / password".
   const demoAccounts = USERS.map((user) => `${user.email} / ${user.password}`);
+
+  if (isLoading) {
+    return (
+      <div className="app">
+        <p className="notice">Chargement des données depuis l'API...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="app">
+        <p className="alert">Impossible de charger l'API: {loadError}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -474,7 +519,10 @@ export default function App() {
 
       {/* Pied de page */}
       <Footer />
-      <img src="https://raw.githubusercontent.com/VATSU-tech/wasomi_site_web/refs/heads/main/src/assets/image_hero.jpeg?token=GHSAT0AAAAAADPTYXCLO5J7T27TTXCO67DO2MUV4MA" alt="photo" />
+      <img
+        src="https://raw.githubusercontent.com/VATSU-tech/wasomi_site_web/refs/heads/main/src/assets/image_hero.jpeg?token=GHSAT0AAAAAADPTYXCLO5J7T27TTXCO67DO2MUV4MA"
+        alt="photo"
+      />
     </div>
   );
 }
@@ -482,7 +530,7 @@ export default function App() {
 /*
 Résumé pédagogique du fichier:
 - Ce composant App centralise l'état global (clients, relations, achats) + l'authentification.
-- Les données sont persistées dans le localStorage (useEffect) et initialisées via seedData.
+- Les données sont chargées depuis l'API locale et stockées en mémoire (pas de localStorage).
 - Les calculs lourds sont mémorisés (useMemo): totaux par client, commissions, graphe, top 5, etc.
 - Les handlers de formulaires valident les entrées, bloquent les actions non admin, puis mettent à jour l'état.
 - L'UI est assemblée par sections (Hero, Auth, Stats, Forms, Analyse, Graph, Texte, Tables, Footer).

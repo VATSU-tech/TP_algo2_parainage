@@ -1,8 +1,5 @@
 import type { Role, User } from "../types/app"; // Types pour sécuriser la config.
 
-export const STORAGE_KEY = "tp-parrainage-data-v1"; // Clé localStorage pour les données métier.
-export const AUTH_KEY = "tp-parrainage-auth-v1"; // Clé localStorage pour l'utilisateur connecté.
-
 export const DIRECT_RATE = 0.05; // Taux de commission directe (5%).
 export const INDIRECT_RATE = 0.01; // Taux de commission indirecte (1%).
 
@@ -22,6 +19,6 @@ export const ROLE_LABELS: Record<Role, string> = {
 
 /*
 Résumé pédagogique du fichier:
-- Centralise la configuration: clés localStorage, taux de commission, comptes de démo.
+- Centralise la configuration: taux de commission, comptes de démo.
 - Fournit aussi un mapping pour afficher des libellés de rôles.
 */
