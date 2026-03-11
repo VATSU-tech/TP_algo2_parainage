@@ -24,7 +24,7 @@ export default function TablesSection({ clients, relations, purchases }: TablesS
           <tbody>
             {/* Une ligne par client */}
             {clients.map((client) => (
-              <tr key={client.id}>
+              <tr key={client.id} className="shadow-2xl shadow-[#f7f2eb]">
                 <td>{client.name}</td>
                 <td>{client.email}</td>
                 <td>{client.city}</td>
